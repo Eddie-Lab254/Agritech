@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <h1>User Dashboard</h1>
+    
+    <!-- Display User Info -->
+    <div id="user-info">
+        <p><strong>Name:</strong> <span id="user-name"></span></p>
+        <p><strong>County:</strong> <span id="user-county"></span></p>
+    </div>
+    
+    <!-- Edit Profile Form -->
+    <h3>Edit Profile</h3>
+    <form id="edit-profile-form">
+        <label for="edit-name">Name:</label>
+        <input type="text" id="edit-name" required><br><br>
+
+        <label for="edit-county">County:</label>
+        <select id="edit-county" required>
+            <option value="Nairobi">Nairobi</option>
+            <option value="Kiambu">Kiambu</option>
+            <option value="Kajiado">Kajiado</option>
+            <option value="Nakuru">Nakuru</option>
+            <option value="Kirinyaga">Kirinyaga</option>
+            <option value="Muranga">Muranga</option>
+        </select><br><br>
+
+        <label for="edit-pin">PIN:</label>
+        <input type="password" id="edit-pin" required><br><br>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <!-- Log Out Button -->
+    <button id="logout-btn">Log Out</button>
+
+    <script>
+        // Fetch user profile function
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch('http://127.0.0.1:2024/api/user-profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`  // Send the token
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error fetching user profile');
+                }
+
+                const data = await response.json();
+                document.getElementById('user-name').textContent = data.name;
+                document.getElementById('user-county').textContent = data.county;
+
+                // Pre-fill the edit form with current user info
+                document.getElementById('edit-name').value = data.name;
+                document.getElementById('edit-county').value = data.county;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Call the function when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchUserProfile();
+        });
+
+        // Handle profile update
+        document.getElementById('edit-profile-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const name = document.getElementById('edit-name').value;
+            const county = document.getElementById('edit-county').value;
+            const pin = document.getElementById('edit-pin').value;
+
+            const response = await fetch('http://127.0.0.1:2024/api/edit-profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, county, pin })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+        });
+
+        // Handle log out
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await fetch('http://127.0.0.1:2024/api/logout', { method: 'POST' });
+            localStorage.removeItem('token');  
+            window.location.href = 'login.html'; 
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/styles/style.css">
+    <title>User</title>
+
+</head>
+<body>
+    <h1>Farmers-connect registration</h1>
+    <form id="registerForm">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Name" required><br>
+
+        <label for="pin">PIN</label>
+        <input type="password" id="pin" name="pin" placeholder="PIN" required autocomplete="current-password"><br>
+
+        <label for="county">County</label>
+        <select name="county" id="county" required>
+            <option value="Nairobi">Nairobi</option>
+            <option value="Kiambu">Kiambu</option>
+            <option value="Kajiado">Kajiado</option>
+            <option value="Nakuru">Nakuru</option>
+            <option value="Kirinyaga">Kirinyaga</option>
+            <option value="Muranga">Muranga</option>
+        </select><br>
+        
+        <label for="role">Role</label>
+        <select id="role" required>
+            <option value="seeker">Resource seeker</option>
+            <option value="provider">Resource provider</option>
+        </select><br>
+
+        <button type="button" id="register-btn">Register</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const registerButton = document.getElementById('register-btn'); 
+
+            if (registerButton) {
+                registerButton.addEventListener('click', async (e) => {
+                    const name = document.getElementById('name').value;
+                    const pin = document.getElementById('pin').value;
+                    const county = document.getElementById('county').value;
+                    const role = document.getElementById('role').value;
+
+                    console.log(name, pin, county, role);
+
+                    try {
+                        const response = await fetch('/api/user/register', { // Corrected URL
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name, pin, county, role })
+                        });
+
+                        const data = await response.json();
+                        if (response.ok) {
+                            alert(data.message || "Registration successful!");
+                            // window.location.href = 'login.html'; // Redirect to login page
+                        } else {
+                            alert(data.message || "Registration failed.");
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again later.');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
