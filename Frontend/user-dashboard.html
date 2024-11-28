@@ -6,91 +6,94 @@
     <title>User Dashboard</title>
 </head>
 <body>
-    <h1>User Dashboard</h1>
+    <h1>Welcome to the User Dashboard</h1>
     
-    <!-- Display User Info -->
-    <div id="user-info">
-        <p><strong>Name:</strong> <span id="user-name"></span></p>
-        <p><strong>County:</strong> <span id="user-county"></span></p>
-    </div>
-    
+  
     <!-- Edit Profile Form -->
     <h3>Edit Profile</h3>
-    <form id="edit-profile-form">
-        <label for="edit-name">Name:</label>
-        <input type="text" id="edit-name" required><br><br>
+    <form id="editProfileForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br><br>
 
-        <label for="edit-county">County:</label>
-        <select id="edit-county" required>
-            <option value="Nairobi">Nairobi</option>
-            <option value="Kiambu">Kiambu</option>
-            <option value="Kajiado">Kajiado</option>
-            <option value="Nakuru">Nakuru</option>
-            <option value="Kirinyaga">Kirinyaga</option>
-            <option value="Muranga">Muranga</option>
-        </select><br><br>
+        <label for="county">County:</label>
+        <input type="text" id="county" name=" county" required><br><br>
 
-        <label for="edit-pin">PIN:</label>
-        <input type="password" id="edit-pin" required><br><br>
-
-        <button type="submit">Save Changes</button>
-    </form>
+<button type="button" onclick="editProfile()">Save changes</button>
 
     <!-- Log Out Button -->
     <button id="logout-btn">Log Out</button>
 
-    <script>
-        // Fetch user profile function
-        async function fetchUserProfile() {
-            try {
-                const response = await fetch('http://127.0.0.1:2024/api/user-profile', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`  // Send the token
-                    }
-                });
+  
+  <div class="section" id="uploadPicture">
+            <h2>Upload Profile Picture</h2>
+            <form id="uploadPictureForm" enctype="multipart/form-data">
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/*" required><br><br>
+                <button type="button" onclick="uploadPicture()">Upload Picture</button>
+            </form>
+        </div>
 
-                if (!response.ok) {
-                    throw new Error('Error fetching user profile');
-                }
 
-                const data = await response.json();
-                document.getElementById('user-name').textContent = data.name;
-                document.getElementById('user-county').textContent = data.county;
+    <!-- Delete Account Section -->
+<div class="section" id="deleteAccount">
+       <h2>Delete Account</h2>
+       <button type="button" onclick="deleteAccount()">Delete My Account</button>
+</div>
 
-                // Pre-fill the edit form with current user info
-                document.getElementById('edit-name').value = data.name;
-                document.getElementById('edit-county').value = data.county;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+<script>
+ function editProfile(){
+    const name = document.getElementById('name').value;
+    const county = document.getElementById('county').value;
 
-        // Call the function when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchUserProfile();
-        });
+    fetch('/api/user/edit', {
+        method: 'PUT',
+        headers:{'content-type' : 'application/json'},
+        body: JSON.stringify({name, county})
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+ }
 
-        // Handle profile update
-        document.getElementById('edit-profile-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
+ // handling the uploaded profile pic
+ function uploadPicture(){
+const formData = new FormData();
+formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
 
-            const name = document.getElementById('edit-name').value;
-            const county = document.getElementById('edit-county').value;
-            const pin = document.getElementById('edit-pin').value;
-
-            const response = await fetch('http://127.0.0.1:2024/api/edit-profile', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, county, pin })
-            });
-
-            const data = await response.json();
+fetch('/api/user/upload-picture', {
+    method: 'POST',
+    body:formData
+})
+.then(resonse => response.json())
+.then(data => {
+    alert(data.message)
+ })
+ .catch(error => {
+    console.error('Error:', error);
+ })
+}
+ // delete functionality
+ function deleteAccount(){
+    if (confirm("Are you sure you want to delete your account?")) {
+        fetch('/api/user/delete', {method: 'DELETE'})
+        .then(response => response.json())
+        .then ( data => {
             alert(data.message);
-        });
 
-        // Handle log out
-        document.getElementById('logout-btn').addEventListener('click', async () => {
+            //redirect to the homepage
+            window.location.href= '/idex.html';
+            })
+         .catch(error => {
+            console.error('Error:', error);
+       });
+    } 
+ }
+
+ // Handle log out
+ document.getElementById('logout-btn').addEventListener('click', async () => {
             await fetch('http://127.0.0.1:2024/api/logout', { method: 'POST' });
             localStorage.removeItem('token');  
             window.location.href = 'login.html'; 

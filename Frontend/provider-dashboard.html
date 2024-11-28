@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Dashboard Faremers-Connect</title>
+<style>
+    /* Basic styling */
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+    header { background-color: #4CAF50; color: white; padding: 10px 0; text-align: center; }
+    .container { width: 80%; margin: auto; padding: 20px; }
+    form { margin-bottom: 30px; }
+    .resource-item { background-color: white; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+    .resource-item h3 { margin: 0; }
+    label { display: block; margin-top: 10px; }
+    input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
+    input[type="file"] { margin-top: 5px; }
+    button { margin-top: 10px; padding: 10px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+</style>
+</head>
+
+<body>
+    <header>
+        <h1>Provider Dashboard - Farmers-Connect</h1>
+    </header>
+
+    <div class=" container">
+        <h2>Upload resources</h2>
+        <form action="uploadForm" enctype="multipart/form-data">
+            <label for="resourceType">Resource Type</label>
+            <select name="resourceType" id="resourceType" required>
+              <option value="tractor">Tractor</option>
+              <option value="lorry">Lorry</option>
+              <option value="land">Land</option>
+              <option value="labor">Labor</option>
+              <option value="water-pump">Water pump for Irrigation</option>
+              <option value="processing equipments">Processing equipment</option>
+            </select>  
+            
+            <label for="description">Description:</label>
+            <textarea name="description" id="description"  rows='4' required></textarea>
+
+            <label for="Location">Location (County)</label>
+            <input type="text" name="location" id="location" required>
+
+            <label for="prie">Price (per day)</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+
+            <label for="availability">Availability</label>
+            <select name="availability" id="availability" required>
+              
+                <option value="true">Available</option>
+                <option value="false">Not Available</option>
+
+            </select>
+
+            <label for="image"> Upload image</label>
+            <input type="file" name="image" id="image/*" required>
+
+            <button type="button" onclick="uploadResource()">Upload Resource</button>
+
+        </form>
+         <h2>My Resources</h2>
+         <div id="resourceList"></div>
+
+    </div>
+
+    <script>
+
+   function displayResources (){
+    fetch ('/api/resources')
+    .then(response =>response.json())
+    .then(data => {
+        const resourceList = document.getElementById('resourceList');
+        resourceList.innerHTML = '';
+
+        data.forEach (resource => {
+          const resourceItem = document.createAlement('div');
+          resourceItem.className = 'resource-item';
+          resourceItem.innerHTML = `
+            <h3>${resource.resource_type}</h3>
+            <p><strong>Description:</strong> ${resource.description}</p>
+            <p><strong>Location:</strong> ${resource.location}</p>
+            <p><strong>Price per day:</strong> $${resource.price}</p>
+            <p><strong>Availability:</strong> ${resource.availability ? 'Available' : 'Not Available'}</p>
+            <img src="${resource.image_path}" alt="Resource Image" style="width: 100px; height: auto;">
+            <button onclick="deleteResource(${resource.id})">Delete</button>
+                    
+          `; 
+           resourceList.appendChild(resourceItem);
+        });
+    })
+    .catch(error => console.error ('Error fetching resources:',error));
+   }
+
+   //function to delete a resource
+   function deleteResource(resourceId){
+    fetch(`/api/resource/${resourceId}`,{
+        method:'DELETE',
+    })
+    .then(response => response.json())
+    .then(data =>{
+        if(data.success){
+            alert('Resource deleted successfully!');
+            displayResource();
+        } else {
+            alert('Error deleting resource');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+
+   }
+
+   //function to upload a resource
+   function uploadResource(){
+    const formData = new FormData(document.getElementById('uploadForm'));
+
+    fetch('/api/resource/add',{
+       method: 'POST',
+       body: formData 
+    })
+    .then(response => response.json())
+    .then(data =>{
+       if(data.success){
+        alert('Resource uploaded successfully!');
+        displayResources();
+       } else{
+        alert('Error uploading resource');
+       }
+    })
+    .catch (error => console.log('Error:', error));
+   }
+
+   //initail load of resources
+   displayResources();
+
+   
+ </script>
+    
+</body>
+</html>

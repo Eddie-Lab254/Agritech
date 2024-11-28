@@ -58,6 +58,7 @@
 //     registerUser,
 //     loginUser
 // };
+const db = require('../config/db');
 const userModel= require("../models/userModel");
 const bcrypt= require('bcryptjs');
 const jsonwebtoken= require('jsonwebtoken');
@@ -74,23 +75,49 @@ exports.registerUser = async (req,res)=>{
 };
 
 
-exports.login = ( req,res) => {
-    const { name, pin} = req.bod;
+// exports.login = ( req,res) => {
+//     const { name, pin} = req.body;
 
-    const query = 'SELECT * FROM user WHERE name=?';
-    db.query ( query, [name], (err, result) => {
-        if (err || result.length === 0){
-            return res.status (400).json ({message :'invalid name or pin'});
+//     const query = 'SELECT * FROM user WHERE name=?';
+//     db.query ( query, [name], (err, result) => {
+//         if (err || result.length === 0){
+//             return res.status (400).json ({message :'invalid name or pin'});
+//         }
+
+//         const user = result [0];
+//         bcrypt.compare(pin, user.pin, (err, isMatch) => {
+//          if (err || !isMatch){
+//             return res.status (400).json({message: 'invalid name or pin'})
+//          } 
+
+//          const token = jsonwebtoken.sign({userId: user.id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1h'});
+//          res.status(200).json({message: 'login successful', token});
+//         });
+//     });
+// };
+
+exports.login = async (req, res) => {
+    try{
+        const {name, pin} = req.body;
+
+        const [result] = await db.promise().query('SELECT * FROM users WHERE name=?',[name]);
+
+        if (result.length === 0){
+            return res.status(400).json ({message: 'invalid name or pin'});
+    
         }
 
-        const user = result [0];
-        bcrypt.compare(pin, user.pin, (err, isMatch) => {
-         if (err || !isMatch){
-            return res.status (400).json({message: 'invalid name or pin'})
-         } 
-
-         const token = jsonwebtoken.sign({userId: user.id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1h'});
-         res.status(200).json({message: 'login successful', token});
-        });
-    });
+        const user = result[0];
+        const isMatch = await bcrypt.compare(pin, user.pin);
+        if(!isMatch){
+            return res.status(400).json({messgae: 'invalid name or pin'});
+        }
+        // generate token for the user
+        const token = jsonwebtoken.sign(
+            {userId: user.id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1h'}
+        );
+        res.status(200).json({message: 'login successful', token});
+        }catch(error){
+        res.status(500).json({message: 'An error occurred.Please try again later'});
+    }
 };
