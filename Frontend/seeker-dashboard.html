@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seeker Dashboard</title>
-    <link rel="stylesheet" href="seeker-dashboard.css"> <!-- Add custom styles -->
+    <link rel="stylesheet" href="seeker-dashboard.css">
 </head>
 <body>
     <header>
         <h1>Available Equipment</h1>
+        <button id="logout-btn">Logout</button>
     </header>
     <main id="resources-container">
         <!-- Resources will be dynamically populated here -->
@@ -16,6 +17,20 @@
 
     <script>
         // Fetch resources and display them
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+          try{
+          const response = await fetch('/api/user/logout',{method: 'POST'});
+
+          if(response.ok){
+            window.location.href='index.html';
+          } else {
+            alert('Error logging out.Please try again')
+          }
+          }  catch(error){
+            console.error('Logout error:', error);
+            alert('An error occurred.Please try again')
+          }  
+        });
         document.addEventListener('DOMContentLoaded', async () => {
             const resourcesContainer = document.getElementById('resources-container');
 

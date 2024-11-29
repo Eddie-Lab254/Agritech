@@ -38,6 +38,7 @@ app.use(session({
 app.use('/api/user', userRouter);
 app.use('/api/resources', providerRouter);
 app.use ('/api/resources', resourceRouter);
+
 // Serve the main page and static HTML routes
 app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'Frontend', 'index.html'));
@@ -51,6 +52,49 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'Frontend', 'login.html'));
 });
 
+app.post('/api/user/login', async (req, res) => {
+    const {phone,pin} = req.body;
+
+    if(!phone || !pin){
+        return res.status(400).json({message:'Phone,Pin are required'});
+
+    }
+    try{
+        const user = await user.findOne({phone});
+        if (!user){
+            return res.status(400).json({message:'User not found'})
+        }
+        const isValidPin = bcrypt.compareSync(pin, user.pin);
+        if (!isValidPin){
+            return res.status(400).json({message:'Invalid PIN'});
+
+        }
+         // Compare role from the request with the role from the user
+         if (user.role !== role){
+             return res.status(400).json({message:'Role mismatch'});
+         }
+
+         // check pass
+         const token = jwt.sign({userId: user._id, role: user.role}, process.env.JWT_SECRET, {expiresIn:'1h'});
+         return res.json({message: 'Login successful',token,role:user.role});
+
+    } catch (error){
+        console.error('Error logging in:',error);
+        return res.status(500).json({message:"Sever error"});
+    }
+});
+
+app.post('/api/user/logout', (req,res) => {
+    req.session?.destroy((err)=>{
+        if(err){
+            console.error ('Error destroying session:', err);
+            return res.status(500).json({success: false,message:'Logout failed'});
+        }
+
+        res.clearCookie('connect.sid');
+        res.status(200).json({success: true,message: 'Logout successful'});
+    });
+});
 
 
 // Server launch

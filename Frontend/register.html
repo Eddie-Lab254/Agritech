@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/styles/style.css">
-    <title>User</title>
-
+    <title>User Registration</title>
 </head>
 <body>
-    <h1>Farmers-connect registration</h1>
+    <h1>Farmers-Connect Registration</h1>
     <form id="registerForm">
         <label for="name">Name</label>
         <input type="text" id="name" name="name" placeholder="Name" autocomplete='username' required><br>
@@ -25,26 +24,22 @@
             <option value="Kirinyaga">Kirinyaga</option>
             <option value="Muranga">Muranga</option>
         </select><br>
-        
+
         <label for="role">Role</label>
         <select id="role" required>
-            <option value="seeker">Resource seeker</option>
-            <option value="provider">Resource provider</option>
+            <option value="seeker">Resource Seeker</option>
+            <option value="provider">Resource Provider</option>
         </select><br>
 
         <label for="phone">Phone Number:</label>
         <input type="text" id="phone" name="phone" required>
 
-        <button type="button" id="register-btn">Register</button>
+        <button type="submit" id="register-btn">Register</button>
     </form>
     <p>Already have an account? <a href="login.html">Log in here</a></p>
 
     <script>
-      document.addEventListener('DOMContentLoaded', () => { 
-    const registerButton = document.getElementById('register-btn'); 
-
-    if (registerButton) {
-        registerButton.addEventListener('click', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault(); // Prevent form submission default behavior
 
             const name = document.getElementById('name').value;
@@ -53,26 +48,17 @@
             const role = document.getElementById('role').value; 
             const phone = document.getElementById('phone').value;
 
-            console.log(name, pin, county, role, phone);
-
             try {
                 const response = await fetch('/api/user/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, pin, county, role ,phone})
+                    body: JSON.stringify({ name, pin, county, role, phone })
                 });
 
                 const data = await response.json();
                 if (response.ok) {
                     alert(data.message || "Registration successful!");
-                    window.location.href = 'login.html';
-                    
-                    // Redirect based on user role
-                    if (role === 'provider') {
-                        window.location.href = 'provider-dashboard.html'; // Redirect to provider dashboard
-                    } else if (role === 'seeker') {
-                        window.location.href = 'seeker-dashboard.html'; // Redirect to seeker dashboard
-                    }
+                    window.location.href = 'login.html'; // Redirect to login page after successful registration
                 } else {
                     alert(data.message || "Registration failed.");
                 }
@@ -81,9 +67,6 @@
                 alert('An error occurred. Please try again later.');
             }
         });
-    }
-});
-
     </script>
 </body>
 </html>

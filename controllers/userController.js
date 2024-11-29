@@ -41,7 +41,7 @@ exports.register = async (req, res) => {
 
 // Login endpoint
 exports.login = async (req, res) => {
-    const { phone, pin, role } = req.body;
+    const { phone, pin} = req.body;
 
     try {
         // Find the user by phone number
@@ -64,18 +64,18 @@ exports.login = async (req, res) => {
                 return res.status(400).json({ message: "Invalid PIN." });
             }
 
-            // Check role
-            if (user.role !== role) {
-                return res.status(400).json({ message: "Role mismatch." });
-            }
-
             // Generate JWT token
-            const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user.id, role: user.role }, 'yet738393ehhurienfeifjoehgjwf4t04fbfkjefgy7449ufjfjkf', { expiresIn: '1h' });
 
-            res.status(200).json({ message: "Login successful.", token });
+       
+                return res.status (200).json({
+                message: 'Login successful.',
+                token,
+                role: user.role
+            });
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Server error." });
+        res.status(500).json({ message: "Server error" });
     }
 };

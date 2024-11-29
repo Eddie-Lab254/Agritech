@@ -160,12 +160,14 @@
         }
 
         // Function for logging out
+
         function logout() {
             fetch('/api/user/logout', {
                 method: 'POST',
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Logout response:', data);
                 if (data.success) {
                     window.location.href = 'index.html'; // Redirect to main page after logout
                 } else {
