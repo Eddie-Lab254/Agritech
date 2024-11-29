@@ -37,39 +37,48 @@
     <p>Already have an account? <a href="login.html">Log in here</a></p>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const registerButton = document.getElementById('register-btn'); 
+      document.addEventListener('DOMContentLoaded', () => { 
+    const registerButton = document.getElementById('register-btn'); 
 
-            if (registerButton) {
-                registerButton.addEventListener('click', async (e) => {
-                    const name = document.getElementById('name').value;
-                    const pin = document.getElementById('pin').value;
-                    const county = document.getElementById('county').value;
-                    const role = document.getElementById('role').value;
+    if (registerButton) {
+        registerButton.addEventListener('click', async (e) => {
+            e.preventDefault(); // Prevent form submission default behavior
 
-                    console.log(name, pin, county, role);
+            const name = document.getElementById('name').value;
+            const pin = document.getElementById('pin').value;
+            const county = document.getElementById('county').value;
+            const role = document.getElementById('role').value; // provider or seeker
 
-                    try {
-                        const response = await fetch('/api/user/register', { // Corrected URL
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ name, pin, county, role })
-                        });
+            console.log(name, pin, county, role);
 
-                        const data = await response.json();
-                        if (response.ok) {
-                            alert(data.message || "Registration successful!");
-                            window.location.href = 'login.html'; // Redirect to login page
-                        } else {
-                            alert(data.message || "Registration failed.");
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again later.');
-                    }
+            try {
+                const response = await fetch('/api/user/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, pin, county, role })
                 });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message || "Registration successful!");
+                    
+                    // Redirect based on user role
+                    if (role === 'provider') {
+                        window.location.href = 'provider-dashboard.html'; // Redirect to provider dashboard
+                    } else if (role === 'seeker') {
+                        window.location.href = 'seeker-dashboard.html'; // Redirect to seeker dashboard
+                    }
+                } else {
+                    alert(data.message || "Registration failed.");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again later.');
             }
         });
+    }
+});
+
     </script>
 </body>
 </html>

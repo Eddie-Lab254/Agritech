@@ -9,8 +9,10 @@ const MySQLStore = require('express-mysql-session')(session);
 const cors = require('cors');
 const bcrypt= require('bcryptjs');
 const jsonwebtoken = require('jsonwebtoken');
+const multer = require ('multer');
 
-const userRouter = require('./router/userRouter');  // Import userRouter
+const userRouter = require('./router/userRouter');
+const providerRouter = require ('./router/providerRouter'); 
 
 // Initialization
 const app = express();
@@ -34,6 +36,7 @@ app.use(session({
 
 // Use the userRouter for API routes under /api
 app.use('/api/user', userRouter);
+app.use('/api/resources', providerRouter);
 
 // Serve the main page and static HTML routes
 app.get('/index.html', (req, res) => {
@@ -47,6 +50,8 @@ app.get('/register', (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'Frontend', 'login.html'));
 });
+
+
 
 // Server launch
 const PORT = 2024;
