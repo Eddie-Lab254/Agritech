@@ -32,6 +32,9 @@
             <option value="provider">Resource provider</option>
         </select><br>
 
+        <label for="phone">Phone Number:</label>
+        <input type="text" id="phone" name="phone" required>
+
         <button type="button" id="register-btn">Register</button>
     </form>
     <p>Already have an account? <a href="login.html">Log in here</a></p>
@@ -47,15 +50,16 @@
             const name = document.getElementById('name').value;
             const pin = document.getElementById('pin').value;
             const county = document.getElementById('county').value;
-            const role = document.getElementById('role').value; // provider or seeker
+            const role = document.getElementById('role').value; 
+            const phone = document.getElementById('phone').value;
 
-            console.log(name, pin, county, role);
+            console.log(name, pin, county, role, phone);
 
             try {
                 const response = await fetch('/api/user/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, pin, county, role })
+                    body: JSON.stringify({ name, pin, county, role ,phone})
                 });
 
                 const data = await response.json();

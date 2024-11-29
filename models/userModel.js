@@ -150,10 +150,10 @@
 const db = require('../config/db');
 
 // Create a new user
-exports.createUser = (name, pin, county, role) => {
+exports.createUser = (name, pin, county, role, phone) => {
       return new Promise((resolve, reject) => {
-        const query = 'INSERT INTO users (name, pin, county, role) VALUES (?, ?, ?, ?)';
-        db.query(query, [name, pin, county, role], (error, results) => {
+        const query = 'INSERT INTO users (name, pin, county, role, phone) VALUES (?, ?, ?, ?, ?)';
+        db.query(query, [name, pin, county, role, phone], (error, results) => {
             if (error) {
               console.error('Database error during user creation:', error);
                 return reject(error);
@@ -172,7 +172,7 @@ exports.findUserByNameAndRole = (name, role) => {
             if (error) {
                 reject(error);
             } else {
-                resolve(results[0]); // Return the first result (unique user)
+                resolve(results[0]); 
             }
         });
     });
