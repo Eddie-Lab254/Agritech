@@ -3,16 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Login</title>
+    <title>Farmers-Connect Login</title>
 </head>
 <body>
-    <h1>Farmers-connect Login</h1>
+    <h1>Farmers-Connect Login</h1>
     <form id="loginForm">
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" id="name" name="name" autocomplete="username" required>
         
         <label for="pin">PIN:</label>
         <input type="password" id="pin" name="pin" autocomplete='current-password' required>
+
+        <label for="role">Role:</label>
+        <select id="role" name="role" required>
+            <option value="">Select Role</option>
+            <option value="provider">Provider</option>
+            <option value="seeker">Seeker</option>
+        </select>
 
         <button type="submit">Login</button>
     </form>
@@ -23,19 +30,30 @@
 
             const name = document.getElementById('name').value;
             const pin = document.getElementById('pin').value;
+            const role = document.getElementById('role').value;
+
+            if (!role) {
+                alert("Please select a role");
+                return;
+            }
 
             try {
                 const response = await fetch('http://127.0.0.1:2024/api/user/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, pin: pin })  // Sending name and pin to backend
+                    body: JSON.stringify({ name, pin, role }) // Send name, pin, and role
                 });
 
                 const data = await response.json();
                 if (response.ok) {
-                    localStorage.setItem('token', data.token);  // Store JWT token
+                    localStorage.setItem('token', data.token); // Store JWT token
                     alert(data.message || "Login successful!");
-                    window.location.href = 'user-dashboard.html';  // Redirect to dashboard page
+                    // Redirect to the respective dashboard
+                    if (role === 'provider') {
+                        window.location.href = 'provider-dashboard.html';
+                    } else if (role === 'seeker') {
+                        window.location.href = 'seeker-dashboard.html';
+                    }
                 } else {
                     alert(data.message || "Login failed.");
                 }

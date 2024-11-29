@@ -147,18 +147,33 @@
 //     createUser,
 //     getUserByPin
 // };
-const db= require('../config/db');
-const bcrypt = require ('bcryptjs');
+const db = require('../config/db');
 
-//functions to create a user
-exports.createUser = async (userData) =>{
- try{
-    const{ name, pin, county, role } = userData;
-    const hashedPin= await bcrypt.hash(pin, 10);
-    const query = "INSERT INTO USERS(name,pin,county,role) VALUES (?,?,?,?)";
-    await db.promise().query(query,[name,hashedPin,county,role]);
-    return{message:'User registered successfully'};
- }catch(error){
-   throw error; 
- }
+// Create a new user
+exports.createUser = (name, pin, county, role) => {
+      return new Promise((resolve, reject) => {
+        const query = 'INSERT INTO users (name, pin, county, role) VALUES (?, ?, ?, ?)';
+        db.query(query, [name, pin, county, role], (error, results) => {
+            if (error) {
+              console.error('Database error during user creation:', error);
+                return reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+};
+
+// Find user by name and role
+exports.findUserByNameAndRole = (name, role) => {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM users WHERE name = ? AND role = ?';
+        db.query(query, [name, role], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results[0]); // Return the first result (unique user)
+            }
+        });
+    });
 };

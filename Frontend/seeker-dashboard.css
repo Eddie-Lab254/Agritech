@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+header {
+    background-color: #0047ab;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+#resources-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    justify-content: center;
+}
+
+.resource-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.resource-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-top: 1rem;
+}

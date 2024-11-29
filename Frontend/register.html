@@ -11,7 +11,7 @@
     <h1>Farmers-connect registration</h1>
     <form id="registerForm">
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Name" required><br>
+        <input type="text" id="name" name="name" placeholder="Name" autocomplete='username' required><br>
 
         <label for="pin">PIN</label>
         <input type="password" id="pin" name="pin" placeholder="PIN" required autocomplete="current-password"><br>
@@ -61,6 +61,7 @@
                 const data = await response.json();
                 if (response.ok) {
                     alert(data.message || "Registration successful!");
+                    window.location.href = 'login.html';
                     
                     // Redirect based on user role
                     if (role === 'provider') {

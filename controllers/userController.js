@@ -1,46 +1,63 @@
+const userModel = require('../models/userModel');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-const db = require('../config/db');
-const userModel= require("../models/userModel");
-const bcrypt= require('bcryptjs');
-const jsonwebtoken= require('jsonwebtoken');
-
-
-exports.registerUser = async (req,res)=>{
-   try{
-    const userData = req.body;
-    const result = await userModel.createUser(userData);
+exports.register = async (req, res) => {
+    const { name, pin, county, role } = req.body;
     
-    //redirect the URL based on user type
-    const redirectUrl = userData.userType === 'provider'? '/provider-dashboard.html' : '/seeker-dashboard.html';
+    try {
+        console.log('Received registration data:', {name,pin, county, role });
+        // Encrypt the PIN
+        const hashedPin = await bcrypt.hash(pin, 10);
+        console.log('User created successfully');
 
-    res.status(201).json({success: true,message: 'Registration successful',redirect: redirectUrl});
-   } catch (error){
-    res.status(500).json({error:'registration Failed'});
-   }
+        // Save the user to the database
+        await userModel.createUser(name, hashedPin, county, role);
 
+        res.status(201).json({
+            message: 'Registration successful! Redirecting to login page...',
+        });
+    } catch (error) {
+        console.log('Error during registration:', error);
+        res.status(500).json({
+            message: 'Error during registration',
+            error: error.message,
+        });
+    }
 };
+
 exports.login = async (req, res) => {
-    try{
-        const {name, pin} = req.body;
+    const { name, pin, role } = req.body;
 
-        const [result] = await db.promise().query('SELECT * FROM users WHERE name=?',[name]);
+    try {
+        // Find the user by name and role
+        const user = await userModel.findUserByNameAndRole(name, role);
 
-        if (result.length === 0){
-            return res.status(400).json ({message: 'invalid name or pin'});
-    
+        if (!user) {
+            return res.status(404).json({ message: 'User not found or role mismatch' });
         }
 
-        const user = result[0];
-        const isMatch = await bcrypt.compare(pin, user.pin);
-        if(!isMatch){
-            return res.status(400).json({messgae: 'invalid name or pin'});
+        // Compare the entered PIN with the hashed PIN in the database
+        const isPinValid = await bcrypt.compare(pin, user.pin);
+        if (!isPinValid) {
+            return res.status(401).json({ message: 'Invalid PIN' });
         }
-        // generate token for the user
-        const token = jsonwebtoken.sign(
-            {userId: user.id, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1h'}
+
+        // Generate a JWT token
+        const token = jwt.sign(
+            { id: user.id, name: user.name, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
         );
-        res.status(200).json({message: 'login successful', token});
-        }catch(error){
-        res.status(500).json({message: 'An error occurred.Please try again later'});
+
+        res.status(200).json({
+            message: 'Login successful!',
+            token: token,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error during login',
+            error: error.message,
+        });
     }
 };

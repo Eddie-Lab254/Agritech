@@ -13,7 +13,7 @@ const multer = require ('multer');
 
 const userRouter = require('./router/userRouter');
 const providerRouter = require ('./router/providerRouter'); 
-
+const resourceRouter = require('./router/resourceRouter');
 // Initialization
 const app = express();
 dotenv.config();
@@ -37,7 +37,7 @@ app.use(session({
 // Use the userRouter for API routes under /api
 app.use('/api/user', userRouter);
 app.use('/api/resources', providerRouter);
-
+app.use ('/api/resources', resourceRouter);
 // Serve the main page and static HTML routes
 app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'Frontend', 'index.html'));
