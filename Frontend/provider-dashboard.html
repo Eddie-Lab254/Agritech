@@ -5,27 +5,126 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Provider Dashboard - Farmers-Connect</title>
     <style>
-        /* Basic styling */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-        header { background-color: #4CAF50; color: white; padding: 10px 0; text-align: center; }
-        .container { width: 80%; margin: auto; padding: 20px; }
-        form { margin-bottom: 30px; }
-        .resource-item { background-color: white; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
-        .resource-item h3 { margin: 0; }
-        label { display: block; margin-top: 10px; }
-        input[type="text"], input[type="number"], input[type="file"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
-        button { margin-top: 10px; padding: 10px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #45a049; }
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Section */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Resource Items */
+        .resource-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .resource-item h3 {
+            margin: 0;
+        }
+
+        /* Profile Section */
+        #profileSelection {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #profileSelection img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        #profileSelection img:hover {
+            border: 2px solid #4CAF50;
+        }
     </style>
 </head>
-
 <body>
     <header>
-        <h1>Provider Dashboard - Farmers-Connect</h1>
+        <h1>Provider Dashboard</h1>
+
+        <div class="header-right">
+            <img id="profilePic" class="profile-pic" src="default-profile.png" alt="Profile Picture" onclick="triggerFileInput()">
+            <input type="file" name="profileImage" id="profileImage" accept="image/*" style="display: none;" onchange="previewProfileImage(event)">
+            <button onclick="logout()">Log Out</button>
+        </div>
+      
     </header>
 
     <div class="container">
-        <h2>Upload resources</h2>
+        <h2>Upload Resources</h2>
         <form id="uploadForm" enctype="multipart/form-data">
             <label for="resourceType">Resource Type</label>
             <select name="resourceType" id="resourceType" required>
@@ -35,13 +134,21 @@
                 <option value="labor">Labor</option>
                 <option value="water-pump">Water pump for Irrigation</option>
                 <option value="processing equipments">Processing equipment</option>
-            </select>  
-            
+            </select>
+
             <label for="description">Description:</label>
             <textarea name="description" id="description" rows="4" required></textarea>
 
             <label for="location">Location (County)</label>
-            <input type="text" name="location" id="location" required>
+            <select name="location" id="location" required>
+                <option value="Nairobi">Nairobi</option>
+                <option value="Kiambu">Kiambu</option>
+                <option value="Kajiado">Kajiado</option>
+                <option value="Nakuru">Nakuru</option>
+                <option value="Kirinyaga">Kirinyaga</option>
+                <option value="Muranga">Muranga</option> 
+            </select>
+
 
             <label for="price">Price (per day)</label>
             <input type="number" id="price" name="price" step="0.01" required>
@@ -55,28 +162,100 @@
             <label for="phone">Phone Number</label>
             <input type="text" name="phone" id="phone" required>
 
-            <label for="image">Upload resource image</label>
+            <label for="image">Upload Resource Image</label>
             <input type="file" name="image" id="image" required>
 
             <button type="button" onclick="uploadResource()">Upload Resource</button>
         </form>
 
-        <h2>Upload Profile Picture</h2>
-        <form id="profileForm" enctype="multipart/form-data">
-            <label for="profileImage">Upload Profile Picture</label>
-            <input type="file" name="profileImage" id="profileImage" required>
-
-            <button type="button" onclick="uploadProfileImage()">Upload Profile Picture</button>
-        </form>
-
         <h2>My Resources</h2>
         <div id="resourceList"></div>
-
-        <button onclick="logout()">Log Out</button>
     </div>
 
     <script>
-        // Function to display resources
+      
+      // Function to trigger file input for profile picture
+        function triggerFileInput() {
+            document.getElementById('profileImage').click();
+        }
+
+        // Preview the selected profile image
+        function previewProfileImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('profilePic').src = e.target.result; // Preview image locally
+                };
+                reader.readAsDataURL(file);
+
+                // Automatically upload the selected image
+                uploadProfilePicture(file);
+            }
+        }
+
+        // Upload the profile picture to the server
+        function uploadProfilePicture(file) {
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            fetch('/api/profile/upload', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        document.getElementById('profilePic').src = data.path; // Update profile picture with saved path
+                        alert(data.message);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch((error) => console.error('Error uploading profile picture:', error));
+        }
+
+        // Fetch and load the profile picture after login
+        function loadProfilePicture() {
+            fetch('/api/profile/')
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success && data.path) {
+                        document.getElementById('profilePic').src = data.path; // Load saved profile picture
+                    }
+                })
+                .catch((error) => console.error('Error loading profile picture:', error));
+        }
+
+        // Call this function after login or on page load
+        loadProfilePicture();
+
+       
+
+
+        // Upload a resource
+        function uploadResource() {
+            const uploadForm = document.getElementById('uploadForm');
+            const formData = new FormData(uploadForm);
+
+            fetch('/api/resource/add', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Resource uploaded successfully!');
+                        uploadForm.reset();
+                        displayResources();
+                    } else {
+                        alert('Error uploading resource: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Display resources
         function displayResources() {
             fetch('/api/resources')
                 .then(response => response.json())
@@ -103,81 +282,38 @@
                 .catch(error => console.error('Error fetching resources:', error));
         }
 
-        // Function to delete a resource
+        // Delete a resource
         function deleteResource(resourceId) {
-            fetch(`/api/resource/${resourceId}`, {
-                method: 'DELETE',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Resource deleted successfully!');
-                    displayResources();
-                } else {
-                    alert('Error deleting resource');
-                }
-            })
-            .catch(error => console.error('Error:', error));
+            if (confirm('Are you sure you want to delete this resource?')) {
+                fetch(`/api/resource/delete/${resourceId}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Resource deleted successfully!');
+                            displayResources();
+                        } else {
+                            alert('Error deleting resource: ' + (data.message || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
         }
 
-        // Function to upload a resource
-        function uploadResource() {
-            const formData = new FormData(document.getElementById('uploadForm'));
-
-            fetch('/api/resource/add', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Resource uploaded successfully!');
-                    displayResources();
-                } else {
-                    alert('Error uploading resource');
-                }
-            })
-            .catch(error => console.log('Error:', error));
-        }
-
-        // Function to upload profile picture
-        function uploadProfileImage() {
-            const formData = new FormData(document.getElementById('profileForm'));
-
-            fetch('/api/user/upload-profile', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Profile picture uploaded successfully!');
-                } else {
-                    alert('Error uploading profile picture');
-                }
-            })
-            .catch(error => console.log('Error:', error));
-        }
-
-        // Function for logging out
-
+        // Logout functionality
         function logout() {
-            fetch('/api/user/logout', {
-                method: 'POST',
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Logout response:', data);
-                if (data.success) {
-                    window.location.href = 'index.html'; // Redirect to main page after logout
-                } else {
-                    alert('Error logging out');
-                }
-            })
-            .catch(error => console.log('Error:', error));
+            fetch('/api/user/logout', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('Error logging out');
+                    }
+                })
+                .catch(error => console.log('Error:', error));
         }
 
-        // Initial load of resources
+        // Load resources on page load
         displayResources();
     </script>
 </body>

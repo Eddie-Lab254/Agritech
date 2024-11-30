@@ -10,19 +10,25 @@ const cors = require('cors');
 const bcrypt= require('bcryptjs');
 const jsonwebtoken = require('jsonwebtoken');
 const multer = require ('multer');
+const fileUpload = require('express-fileupload');
+const fs = require ('fs');
 
+//importing the routes
 const userRouter = require('./router/userRouter');
 const providerRouter = require ('./router/providerRouter'); 
 const resourceRouter = require('./router/resourceRouter');
+const profileRouter =require('./router/profileRouter');
 // Initialization
 const app = express();
 dotenv.config();
 
 // Middleware setup
+app.use(fileUpload());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'Frontend')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 
 // Session configuration
 const sessionStore = new MySQLStore({}, db);
@@ -38,6 +44,7 @@ app.use(session({
 app.use('/api/user', userRouter);
 app.use('/api/resources', providerRouter);
 app.use ('/api/resources', resourceRouter);
+app.use('./api/profile', profileRouter);
 
 // Serve the main page and static HTML routes
 app.get('/index.html', (req, res) => {
