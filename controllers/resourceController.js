@@ -13,7 +13,7 @@
 
 const path = require ('path');
 const fs = require ('fs');
-const resourceModel=require('../model/resourceModel');
+const resourceModel=require('../models/resourceModel');
 
 //add a resource
 exports.addResource = async (req,res) => {
@@ -54,7 +54,7 @@ exports.addResource = async (req,res) => {
 };
 
 // Get resources by provider
-exports.getResourcesByProvider = async (req, res) => {
+exports.getAllResources = async (req, res) => {
     try {
         const providerId = req.session.userId;
         if (!providerId) return res.status(401).json({ success: false, message: 'Provider not logged in' });

@@ -18,16 +18,17 @@ const userRouter = require('./router/userRouter');
 const providerRouter = require ('./router/providerRouter'); 
 const resourceRouter = require('./router/resourceRouter');
 const profileRouter =require('./router/profileRouter');
+
 // Initialization
 const app = express();
 dotenv.config();
 
 // Middleware setup
-app.use(fileUpload());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'Frontend')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 
 // Session configuration
